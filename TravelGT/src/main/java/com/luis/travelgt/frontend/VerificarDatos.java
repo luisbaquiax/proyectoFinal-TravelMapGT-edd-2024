@@ -6,6 +6,7 @@ package com.luis.travelgt.frontend;
 
 import com.luis.travelgt.objetos.utiles.ManejoDatos;
 import java.awt.Color;
+import java.awt.Toolkit;
 
 /**
  *
@@ -28,6 +29,7 @@ public class VerificarDatos extends javax.swing.JFrame {
         textArea.setText(contenido);
         this.param = param;
 
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/travel.jpeg")));
     }
 
     /**

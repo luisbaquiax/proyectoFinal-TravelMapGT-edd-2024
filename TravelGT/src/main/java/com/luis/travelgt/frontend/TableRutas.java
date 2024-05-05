@@ -8,9 +8,11 @@ import com.luis.travelgt.objetos.Arista;
 import com.luis.travelgt.objetos.GrafoDirigido;
 import com.luis.travelgt.objetos.Ruta;
 import com.luis.travelgt.objetos.utiles.Utiles;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -44,7 +46,10 @@ public class TableRutas extends javax.swing.JFrame {
         if (param == 1) {
             setTableDetalleRuta();
         } else if (param == 2) {
+            setTableDetalleRutaVehiculo();
         }
+
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/travel.jpeg")));
     }
 
     /**
@@ -69,6 +74,7 @@ public class TableRutas extends javax.swing.JFrame {
         setBackground(new java.awt.Color(0, 51, 153));
 
         jTabbedPane1.setBackground(new java.awt.Color(0, 51, 153));
+        jTabbedPane1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
 
         jPanel2.setForeground(new java.awt.Color(0, 51, 153));
 
@@ -275,6 +281,9 @@ public class TableRutas extends javax.swing.JFrame {
 
     }
 
+    private void setTableDetalleRutaVehiculo() {
+    }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel jPanel1;
@@ -286,4 +295,8 @@ public class TableRutas extends javax.swing.JFrame {
     private rojerusan.RSTableMetro tableDetalleRutas;
     private rojerusan.RSTableMetro tableRutas;
     // End of variables declaration//GEN-END:variables
+
+    public JLabel getLabelHora(){
+        return labelHeader1;
+    }
 }

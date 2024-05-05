@@ -19,7 +19,6 @@ public class NodoTree implements Serializable {
     private ArrayList<NodoTree> hijos;
     private boolean esHoja;
 
-    // Constructor
     public NodoTree(boolean esHoja) {
         this.claves = new ArrayList<>();
         this.hijos = new ArrayList<>();

@@ -28,6 +28,8 @@ public class Arista {
 
     int indiceDestino;
 
+    private boolean caminable;
+
     public Arista(String origen, String destino, int tiempoVehiculo, int tiempoApie, int cantidadGasolina, int desgaste, int peso, int indiceDestino) {
         this.origen = origen;
         this.destino = destino;
@@ -37,6 +39,7 @@ public class Arista {
         this.desgaste = desgaste;
         this.peso = peso;
         this.indiceDestino = indiceDestino;
+        this.caminable = false;
     }
 
     public Arista(Arista arista) {
@@ -48,6 +51,7 @@ public class Arista {
         this.desgaste = arista.getDesgaste();
         this.peso = arista.getPeso();
         this.indiceDestino = arista.getIndiceDestino();
+        this.caminable = arista.isCaminable();
     }
 
     @Override
@@ -55,6 +59,7 @@ public class Arista {
         return "Arista{" + "origen=" + origen + ", destino=" + destino + ", tiempoVehiculo=" + tiempoVehiculo + ", tiempoApie=" + tiempoApie + ", cantidadGasolina=" + cantidadGasolina + ", desgaste=" + desgaste + ", peso=" + peso + ", indiceDestino=" + indiceDestino + '}';
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -70,5 +75,5 @@ public class Arista {
     public int hashCode() {
         return Objects.hash(origen, destino, peso);
     }
-    
+
 }

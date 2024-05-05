@@ -14,12 +14,12 @@ import java.util.List;
 public class TreeB {
 
     private NodoTree raiz;
-    private int t;
+    private int tamaño;
     private List<List<String>> caminosPosibles;
 
     public TreeB(int t) {
         this.raiz = null;
-        this.t = t;
+        this.tamaño = t;
     }
 
     public void insertar(int clave) {
@@ -27,7 +27,7 @@ public class TreeB {
             raiz = new NodoTree(true);
             raiz.getClaves().add(clave);
         } else {
-            if (raiz.getClaves().size() == 2 * t - 1) {
+            if (raiz.getClaves().size() == 2 * tamaño - 1) {
                 NodoTree nuevaRaiz = new NodoTree(false);
                 nuevaRaiz.getHijos().add(raiz);
                 dividirHijo(nuevaRaiz, 0);
@@ -57,7 +57,7 @@ public class TreeB {
                 i--;
             }
             i++;
-            if (nodo.getHijos().get(i).getClaves().size() == 2 * t - 1) {
+            if (nodo.getHijos().get(i).getClaves().size() == 2 * tamaño - 1) {
                 dividirHijo(nodo, i);
                 if (clave > nodo.getClaves().get(i)) {
                     i++;
@@ -76,15 +76,15 @@ public class TreeB {
     private void dividirHijo(NodoTree nodoPadre, int indiceHijo) {
         NodoTree hijo = nodoPadre.getHijos().get(indiceHijo);
         NodoTree nuevoHijo = new NodoTree(hijo.isEsHoja());
-        for (int j = 0; j < t - 1; j++) {
-            nuevoHijo.getClaves().add(hijo.getClaves().remove(t));
+        for (int j = 0; j < tamaño - 1; j++) {
+            nuevoHijo.getClaves().add(hijo.getClaves().remove(tamaño));
         }
         if (!hijo.isEsHoja()) {
-            for (int j = 0; j < t; j++) {
-                nuevoHijo.getHijos().add(hijo.getHijos().remove(t));
+            for (int j = 0; j < tamaño; j++) {
+                nuevoHijo.getHijos().add(hijo.getHijos().remove(tamaño));
             }
         }
-        nodoPadre.getClaves().add(indiceHijo, hijo.getClaves().remove(t - 1));
+        nodoPadre.getClaves().add(indiceHijo, hijo.getClaves().remove(tamaño - 1));
         nodoPadre.getHijos().add(indiceHijo + 1, nuevoHijo);
     }
 

@@ -38,8 +38,14 @@ public class GrafoDirigido {
     public void agregarArista(String origen, String destino, Arista arista) {
         int indiceOrigen = encontrarIndiceNodo(origen);
         int indiceDestino = encontrarIndiceNodo(destino);
+
         arista.indiceDestino = indiceDestino;
         aristas.get(indiceOrigen).add(new Arista(arista));
+
+        arista.setCaminable(true);
+        arista.indiceDestino = indiceOrigen; // Intercambiamos los nodos origen y destino
+        aristas.get(indiceDestino).add(new Arista(arista));
+
     }
 
     public String mostrarGrafo() {
@@ -50,8 +56,10 @@ public class GrafoDirigido {
             List<Arista> destinos = aristas.get(i);
             for (Arista arista : destinos) {
                 String destino = nodos.get(arista.indiceDestino).nombre;
-                resultado.append(origen).append(" -> ").
-                        append(destino).append(" [label=\"[").append(arista.peso).append("]\"];\n");
+                if (!arista.isCaminable()) {
+                    resultado.append(origen).append(" -> ").
+                            append(destino).append(" [label=\"[").append(arista.peso).append("]\", dir=none];\n");
+                }
             }
         }
         resultado.append("}\n");
@@ -77,7 +85,10 @@ public class GrafoDirigido {
         for (int i = 0; i < nodos.size(); i++) {
             String nodo = nodos.get(i).nombre;
             if (nodo.equals(origen) || nodo.equals(destino)) {
-                resultado.append(nodo).append(" [style=filled, fillcolor=").append("yellow").append("];\n");
+                resultado.append(nodo).append(" [style=filled, shape=doublecircle, fillcolor=").append("yellow").append("];\n");
+            }
+            if (nodo.equals(origen) && nodo.equals(destino)) {
+                resultado.append(nodo).append(" [style=filled, shape=doublecircle, fillcolor=").append("yellow").append("];\n");
             }
             List<Arista> destinos = aristas.get(i);
             for (Arista arista : destinos) {

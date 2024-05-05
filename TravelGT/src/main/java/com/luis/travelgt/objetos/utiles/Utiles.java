@@ -25,9 +25,9 @@ public class Utiles {
                 TAM, Image.SCALE_SMOOTH)));
     }
 
-    public void setIconLabel(JLabel label, String ruta, int tam) {
-        ImageIcon icono1 = new ImageIcon(ruta);
-        label.setIcon(new ImageIcon(icono1.getImage().getScaledInstance(tam,
+    public void setIconLabel(JLabel label, String ruta) {
+        ImageIcon icono1 = new ImageIcon(getClass().getResource(ruta));
+        label.setIcon(new ImageIcon(icono1.getImage().getScaledInstance(label.getSize().width,
                 label.getSize().height, Image.SCALE_SMOOTH)));
     }
 

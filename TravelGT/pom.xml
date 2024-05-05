@@ -109,5 +109,20 @@
             <artifactId>RSButtonGradiente</artifactId>
             <version>SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>unknown.binary</groupId>
+            <artifactId>RSComponentShade</artifactId>
+            <version>SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>unknown.binary</groupId>
+            <artifactId>RSDate</artifactId>
+            <version>SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>unknown.binary</groupId>
+            <artifactId>RSUtilities</artifactId>
+            <version>SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

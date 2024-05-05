@@ -10,22 +10,31 @@ import com.luis.travelgt.objetos.Nodo;
 import com.luis.travelgt.objetos.Ruta;
 import com.luis.travelgt.objetos.TreeB;
 import com.luis.travelgt.objetos.utiles.*;
+import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import org.edisoncor.gui.label.LabelHeader;
 
 /**
  *
  * @author Luis
  */
-public class TravelGt extends javax.swing.JFrame implements Runnable {
+public class TravelGt extends javax.swing.JFrame {
+
+    public static final String RECARGA = "Clic para recargar mapa...";
+
+    private Calendar calendar;
+    int hora, minutos, segundos;
 
     private Archivo archivo;
     private ManejoDatos manejoDatos;
@@ -40,6 +49,12 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
 
     private TreeB treeB;
 
+    private Thread hiloReloj;
+
+    private Reloj reloj;
+
+    private boolean seguir;
+
     /**
      * Creates new form NewJFrame
      */
@@ -51,6 +66,14 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         gruop.add(checkVehiculo);
         origen = "";
         destino = "";
+        seguir = true;
+
+        calendar = Calendar.getInstance();
+
+        hora = calendar.get(Calendar.HOUR);
+        minutos = calendar.get(Calendar.MINUTE);
+        segundos = calendar.get(Calendar.SECOND);
+
         comboRutas.removeAllItems();
         checkPie.setSelected(true);
 
@@ -65,6 +88,14 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         setIcons();
 
         bloquearMoverse();
+
+        reloj = new Reloj(this, hora, minutos, segundos);
+
+        hiloReloj = new Thread(reloj);
+
+        hiloReloj.start();
+
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/travel.jpeg")));
     }
 
     /**
@@ -90,9 +121,26 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         btnRutas = new RSMaterialComponent.RSButtonMaterialGradientOne();
         btnReiniciar = new org.edisoncor.gui.button.ButtonAction();
         labelHeader3 = new org.edisoncor.gui.label.LabelHeader();
-        panelMapa = new javax.swing.JPanel();
+        pages = new javax.swing.JTabbedPane();
         scroolMapa = new javax.swing.JScrollPane();
         labelMapa = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        labelRect2 = new org.edisoncor.gui.label.LabelRect();
+        scrollUbicacion = new javax.swing.JScrollPane();
+        labelUbicacion = new javax.swing.JLabel();
+        jPanel4 = new javax.swing.JPanel();
+        labelRect3 = new org.edisoncor.gui.label.LabelRect();
+        scroolMasCorto = new javax.swing.JScrollPane();
+        labelCaminosCorto = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        panelCurves1 = new org.edisoncor.gui.panel.PanelCurves();
+        buttonAction1 = new org.edisoncor.gui.button.ButtonAction();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        labelTree = new javax.swing.JLabel();
+        jToolBar1 = new javax.swing.JToolBar();
+        labelSetting = new javax.swing.JLabel();
+        labelHora = new org.edisoncor.gui.label.LabelHeader();
+        labelStop = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuCargar = new javax.swing.JMenuItem();
@@ -211,11 +259,21 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
                 .addComponent(comboRutas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnMoverse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnReiniciar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
+        pages.setBackground(new java.awt.Color(0, 51, 153));
+        pages.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        pages.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                pagesMouseClicked(evt);
+            }
+        });
+
+        labelMapa.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelMapa.setText("Clic para recargar mapa");
         labelMapa.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 labelMapaMouseClicked(evt);
@@ -223,16 +281,119 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         });
         scroolMapa.setViewportView(labelMapa);
 
-        javax.swing.GroupLayout panelMapaLayout = new javax.swing.GroupLayout(panelMapa);
-        panelMapa.setLayout(panelMapaLayout);
-        panelMapaLayout.setHorizontalGroup(
-            panelMapaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scroolMapa, javax.swing.GroupLayout.DEFAULT_SIZE, 554, Short.MAX_VALUE)
+        pages.addTab("Ver mapa", scroolMapa);
+
+        jPanel3.setBackground(new java.awt.Color(0, 51, 153));
+
+        labelRect2.setText("Abrir mapa");
+        labelRect2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelRect2MouseClicked(evt);
+            }
+        });
+
+        labelUbicacion.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelUbicacion.setText("Clic para recargar mapa");
+        labelUbicacion.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelUbicacionMouseClicked(evt);
+            }
+        });
+        scrollUbicacion.setViewportView(labelUbicacion);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(scrollUbicacion, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelRect2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        panelMapaLayout.setVerticalGroup(
-            panelMapaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scroolMapa)
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelRect2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scrollUbicacion, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE))
         );
+
+        pages.addTab("Ver ubicacion", jPanel3);
+
+        jPanel4.setBackground(new java.awt.Color(0, 51, 153));
+
+        labelRect3.setText("Abrir mapa");
+        labelRect3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelRect3MouseClicked(evt);
+            }
+        });
+
+        labelCaminosCorto.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelCaminosCorto.setText("Clic para recargar mapa...");
+        labelCaminosCorto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelCaminosCortoMouseClicked(evt);
+            }
+        });
+        scroolMasCorto.setViewportView(labelCaminosCorto);
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelRect3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(scroolMasCorto, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(labelRect3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(scroolMasCorto, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE))
+        );
+
+        pages.addTab("Camino mas corto", jPanel4);
+
+        jPanel5.setBackground(new java.awt.Color(0, 51, 153));
+
+        buttonAction1.setText("Abrir imagen");
+        buttonAction1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonAction1ActionPerformed(evt);
+            }
+        });
+        panelCurves1.add(buttonAction1, java.awt.BorderLayout.PAGE_START);
+
+        labelTree.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        labelTree.setText("Click para recargar imagen");
+        labelTree.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelTreeMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(labelTree);
+
+        panelCurves1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelCurves1, javax.swing.GroupLayout.DEFAULT_SIZE, 561, Short.MAX_VALUE)
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelCurves1, javax.swing.GroupLayout.DEFAULT_SIZE, 450, Short.MAX_VALUE)
+        );
+
+        pages.addTab("Arbol B", jPanel5);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -242,18 +403,27 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
                 .addContainerGap()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(panelMapa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(pages))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(panelMapa, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(pages))
                 .addContainerGap())
         );
+
+        jToolBar1.add(labelSetting);
+        jToolBar1.add(labelHora);
+
+        labelStop.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                labelStopMouseClicked(evt);
+            }
+        });
+        jToolBar1.add(labelStop);
 
         jMenu1.setText("Archivo");
 
@@ -305,10 +475,14 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -336,7 +510,7 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
 
     private void labelMapaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelMapaMouseClicked
         // TODO add your handling code here:
-        ponerImagenMapa(Archivo.RUTA_IMAGEN_MAPA);
+        ponerImagenMapa(Archivo.RUTA_IMAGEN_MAPA, labelMapa);
     }//GEN-LAST:event_labelMapaMouseClicked
 
     private void btnGenerarRutasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarRutasActionPerformed
@@ -410,6 +584,8 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         } else {
             generarRuta();
             llenarComboRutas();
+            ponerImagenMapa(Archivo.IMG_CAMINOS, labelUbicacion);
+            pages.setSelectedIndex(1);
         }
     }//GEN-LAST:event_btnMoverseActionPerformed
 
@@ -440,6 +616,101 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         bloquearMoverse();
     }//GEN-LAST:event_btnReiniciarActionPerformed
 
+    private void labelRect2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelRect2MouseClicked
+        // TODO add your handling code here:
+        archivo.openFile(Archivo.IMG_CAMINOS);
+    }//GEN-LAST:event_labelRect2MouseClicked
+
+    private void labelRect3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelRect3MouseClicked
+        // TODO add your handling code here:
+        archivo.openFile(Archivo.IMG_CAMINO_CORTO);
+    }//GEN-LAST:event_labelRect3MouseClicked
+
+    private void labelUbicacionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelUbicacionMouseClicked
+        // TODO add your handling code here:
+        ponerImagenMapa(Archivo.IMG_CAMINOS, labelUbicacion);
+    }//GEN-LAST:event_labelUbicacionMouseClicked
+
+    private void labelCaminosCortoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelCaminosCortoMouseClicked
+        // TODO add your handling code here:
+        ponerImagenMapa(Archivo.IMG_CAMINO_CORTO, labelCaminosCorto);
+    }//GEN-LAST:event_labelCaminosCortoMouseClicked
+
+    private void labelTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelTreeMouseClicked
+        // TODO add your handling code here:
+        ponerImagenMapa(Archivo.IMG_TREE, labelTree);
+    }//GEN-LAST:event_labelTreeMouseClicked
+
+    private void buttonAction1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAction1ActionPerformed
+        // TODO add your handling code here:
+        archivo.openFile(Archivo.IMG_TREE);
+    }//GEN-LAST:event_buttonAction1ActionPerformed
+
+    private void pagesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pagesMouseClicked
+        // TODO add your handling code here:
+        switch (pages.getSelectedIndex()) {
+            case 0 ->
+                ponerImagenMapa(Archivo.RUTA_IMAGEN_MAPA, labelMapa);
+            case 1 ->
+                ponerImagenMapa(Archivo.IMG_CAMINOS, labelUbicacion);
+            case 2 ->
+                ponerImagenMapa(Archivo.IMG_CAMINO_CORTO, labelCaminosCorto);
+            case 3 ->
+                ponerImagenMapa(Archivo.IMG_TREE, labelTree);
+            default -> {
+            }
+        }
+    }//GEN-LAST:event_pagesMouseClicked
+
+    private void labelStopMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_labelStopMouseClicked
+        // TODO add your handling code here:
+        seguir = !seguir;
+        if (seguir) {
+            utiles.setIconLabel(labelStop, "/img/stop.jpeg");
+            iniciarReloj();
+//            reloj = new Reloj(this, hora, minutos, segundos);
+//            hiloReloj = new Thread(reloj);
+//            hiloReloj.start();
+        } else {
+            utiles.setIconLabel(labelStop, "/img/run.jpeg");
+            pararReloj();
+        }
+
+    }//GEN-LAST:event_labelStopMouseClicked
+
+    private void iniciarReloj() {
+        hiloReloj = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (seguir) {
+                    segundos++;
+                    if (segundos > 59) {
+                        ++minutos;
+                        segundos = 0;
+                        if (minutos > 59) {
+                            hora++;
+                            minutos = 0;
+                            if (hora > 23) {
+                                hora = 0;
+                            }
+                        }
+                    }
+                    labelHora.setText("Hora " + hora + ":" + minutos + ":" + segundos);
+                }
+                try {
+                    Thread.sleep(1000); // Espera 1 segundo
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        hiloReloj.start();
+    }
+
+    private void pararReloj() {
+        hiloReloj.interrupt();
+    }
+
     public void insertDataToGraph() {
         grafoDirigido = new GrafoDirigido();
         for (Nodo nodo : manejoDatos.getLugares()) {
@@ -453,18 +724,18 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
             comboDestino.addItem(lugar.getNombre());
         }
         graphiz.dibujar(grafoDirigido.mostrarGrafo(), Archivo.RUTA_IMAGEN_MAPA, Archivo.RUTA_ARCHIVO_DOT);
-
     }
 
-    public void ponerImagenMapa(String ruta) {
+    public void ponerImagenMapa(String ruta, JLabel label) {
         try {
             BufferedImage imagen = ImageIO.read(new File(ruta));
             int ancho = imagen.getWidth();
             int alto = imagen.getHeight();
 
-            utiles.setIconLabel(labelMapa, ruta, ancho, alto);
-            panelMapa.repaint();
-            panelMapa.revalidate();
+            label.setText("");
+            utiles.setIconLabel(label, ruta, ancho, alto);
+            //panelMapa.repaint();
+            //panelMapa.revalidate();
         } catch (IOException ex) {
             Logger.getLogger(TravelGt.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -483,9 +754,6 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
 //        System.out.println(grafoDirigido.mostrarRutaMasCorta3(origen, destino, "black"));
 //        System.out.println(grafoDirigido.mostrarCaminos(origen, destino, "red"));
 
-        graphiz.dibujar(grafoDirigido.mostrarRutaMasCorta(origen, destino, "black"), Archivo.IMG_CAMINO_CORTO, Archivo.DOT_CORTA);
-        graphiz.dibujar(grafoDirigido.mostrarCaminos(origen, destino, "green"), Archivo.IMG_CAMINOS, Archivo.DOT_CAMINOS);
-
         System.out.println("tam " + grafoDirigido.obtenerPosiblesCaminos(origen, destino).size());
 //        System.out.println("posibles caminos: ");
 //        for (int i = 0; i < grafoDirigido.obtenerPosiblesCaminos(origen, destino).size(); i++) {
@@ -500,26 +768,23 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
             treeB.insertar(i);
         }
         treeB.setCaminos(grafoDirigido.obtenerPosiblesCaminos(origen, destino));
-        System.out.println(treeB.graficaList());
-        System.out.println("ruta mas corta: ");
-        for (int i = 0; i < grafoDirigido.obtenerRutaMasCorta(origen, destino).size(); i++) {
-            System.out.println(grafoDirigido.obtenerRutaMasCorta(origen, destino).get(i).toString());
-        }
 
-        System.out.println("rutas");
+//        System.out.println("ruta mas corta: ");
+//        for (int i = 0; i < grafoDirigido.obtenerRutaMasCorta(origen, destino).size(); i++) {
+//            System.out.println(grafoDirigido.obtenerRutaMasCorta(origen, destino).get(i).toString());
+//        }
         Ruta.ID = 0;
         listRutas = grafoDirigido.obtenerTodasLasRutas(origen, destino);
-        for (int i = 0; i < listRutas.size(); i++) {
-            System.out.println("RUTA:");
-            for (int j = 0; j < listRutas.get(i).getAristas().size(); j++) {
-                System.out.println(listRutas.get(i).getAristas().get(j).toString());
-            }
-        }
-        graphiz.dibujar(treeB.graficaList(), Archivo.IMG_TREE, Archivo.DOT_TREE);
-    }
+//        for (int i = 0; i < listRutas.size(); i++) {
+//            System.out.println("RUTA:");
+//            for (int j = 0; j < listRutas.get(i).getAristas().size(); j++) {
+//                System.out.println(listRutas.get(i).getAristas().get(j).toString());
+//            }
+//        }
 
-    @Override
-    public void run() {
+        graphiz.dibujar(grafoDirigido.mostrarRutaMasCorta(origen, destino, "black"), Archivo.IMG_CAMINO_CORTO, Archivo.DOT_CORTA);
+        graphiz.dibujar(grafoDirigido.mostrarCaminos(origen, destino, "green"), Archivo.IMG_CAMINOS, Archivo.DOT_CAMINOS);
+        graphiz.dibujar(treeB.graficaList(), Archivo.IMG_TREE, Archivo.DOT_TREE);
     }
 
 
@@ -528,6 +793,7 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
     private org.edisoncor.gui.button.ButtonAction btnMoverse;
     private org.edisoncor.gui.button.ButtonAction btnReiniciar;
     private RSMaterialComponent.RSButtonMaterialGradientOne btnRutas;
+    private org.edisoncor.gui.button.ButtonAction buttonAction1;
     private rojerusan.RSCheckBox checkPie;
     private rojerusan.RSCheckBox checkVehiculo;
     private org.edisoncor.gui.comboBox.ComboBoxRound comboDestino;
@@ -540,15 +806,31 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JLabel labelCaminosCorto;
     private org.edisoncor.gui.label.LabelHeader labelHeader1;
     private org.edisoncor.gui.label.LabelHeader labelHeader2;
     private org.edisoncor.gui.label.LabelHeader labelHeader3;
+    private org.edisoncor.gui.label.LabelHeader labelHora;
     private javax.swing.JLabel labelMapa;
+    private org.edisoncor.gui.label.LabelRect labelRect2;
+    private org.edisoncor.gui.label.LabelRect labelRect3;
+    private javax.swing.JLabel labelSetting;
+    private javax.swing.JLabel labelStop;
+    private javax.swing.JLabel labelTree;
+    private javax.swing.JLabel labelUbicacion;
     private javax.swing.JMenuItem menuCargar;
     private javax.swing.JMenuItem menuCargarTrafico;
     private javax.swing.JMenu menuExit;
-    private javax.swing.JPanel panelMapa;
+    private javax.swing.JTabbedPane pages;
+    private org.edisoncor.gui.panel.PanelCurves panelCurves1;
+    private javax.swing.JScrollPane scrollUbicacion;
     private javax.swing.JScrollPane scroolMapa;
+    private javax.swing.JScrollPane scroolMasCorto;
     // End of variables declaration//GEN-END:variables
 
     private void setIcons() {
@@ -556,6 +838,10 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         utiles.setIconMenuItem(menuCargar, "/img/carga.jpeg");
         utiles.setIconMenuItem(menuCargarTrafico, "/img/trafico.png");
         utiles.setIconMenuItem(menuExit, "/img/close.jpeg");
+        labelSetting.setSize(20, 20);
+        utiles.setIconLabel(labelSetting, "/img/setting.png");
+        labelStop.setSize(20, 20);
+        utiles.setIconLabel(labelStop, "/img/stop.jpeg");
     }
 
     private void bloquearMoverse() {
@@ -582,6 +868,14 @@ public class TravelGt extends javax.swing.JFrame implements Runnable {
         btnGenerarRutas.setEnabled(false);
         checkPie.setEnabled(false);
         checkVehiculo.setEnabled(false);
+    }
+
+    public LabelHeader getLabelHora() {
+        return labelHora;
+    }
+
+    public boolean isSeguir() {
+        return seguir;
     }
 
 }
