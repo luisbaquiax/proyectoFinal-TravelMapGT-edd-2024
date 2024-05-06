@@ -436,6 +436,11 @@ public class TravelGt extends javax.swing.JFrame {
         jMenu1.add(menuCargar);
 
         menuCargarTrafico.setText("Cargar datos de tráfico");
+        menuCargarTrafico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuCargarTraficoActionPerformed(evt);
+            }
+        });
         jMenu1.add(menuCargarTrafico);
 
         jMenuBar1.add(jMenu1);
@@ -538,7 +543,18 @@ public class TravelGt extends javax.swing.JFrame {
                         llenarComboRutas();
                         activarMoverse();
                     } else {
-                        System.out.println("aun no existe tal funcionalidad");
+                        Ruta.ID = 0;
+                        List<Ruta> dobleVia = grafoDirigido.obtenerRutaDoble(origen, destino);
+                        for (Ruta ruta : dobleVia) {
+                            System.out.println("ruta: ");
+                            System.out.println(Arrays.toString(ruta.getAristas().toArray()));
+                        }
+                        if (dobleVia.isEmpty()) {
+                            JOptionPane.showMessageDialog(null, "No se puede viajar en vehículo",
+                                    "NO SE PUEDE VIAJAR EN VEHÍCULO AL LUGAR SELECCIONADO",
+                                    JOptionPane.INFORMATION_MESSAGE,
+                                    utiles.getIcon("img/info.jpeg", 45));
+                        }
                     }
                 }
             } else {
@@ -677,6 +693,25 @@ public class TravelGt extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_labelStopMouseClicked
+
+    private void menuCargarTraficoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuCargarTraficoActionPerformed
+        // TODO add your handling code here:
+        if (!manejoDatos.getLugares().isEmpty()) {
+            String ruta = archivo.pathChoserOpen();
+            if (!ruta.equals("")) {
+                VerificarDatos ver = new VerificarDatos(this, archivo.readFile(ruta), manejoDatos, 2);
+                ver.setVisible(true);
+                setVisible(false);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "No se ha cargado todavía datos de los lugares y destinos",
+                    "NO EXISTE DATOS EN EL SISTEMA!!!",
+                    JOptionPane.INFORMATION_MESSAGE,
+                    utiles.getIcon("img/info.jpeg", 45));
+            bloquearMoverse();
+        }
+
+    }//GEN-LAST:event_menuCargarTraficoActionPerformed
 
     private void iniciarReloj() {
         hiloReloj = new Thread(new Runnable() {

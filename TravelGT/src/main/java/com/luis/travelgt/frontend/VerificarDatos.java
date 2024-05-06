@@ -19,7 +19,11 @@ public class VerificarDatos extends javax.swing.JFrame {
     private int param;
 
     /**
-     * Creates new form VerificarDatos
+     *
+     * @param travelGt
+     * @param contenido
+     * @param manejoDatos
+     * @param param
      */
     public VerificarDatos(TravelGt travelGt, String contenido, ManejoDatos manejoDatos, int param) {
         initComponents();
@@ -28,7 +32,7 @@ public class VerificarDatos extends javax.swing.JFrame {
         this.manejoDatos = manejoDatos;
         textArea.setText(contenido);
         this.param = param;
-
+        
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/img/travel.jpeg")));
     }
 

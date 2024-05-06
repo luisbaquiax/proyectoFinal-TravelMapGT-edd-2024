@@ -6,6 +6,7 @@ package com.luis.travelgt.objetos.utiles;
 
 import com.luis.travelgt.objetos.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
 
@@ -113,6 +114,19 @@ public class ManejoDatos {
                             Integer.parseInt(horaInicio),
                             Integer.parseInt(horaFin),
                             Integer.parseInt(probabilidad)));
+                }
+            }
+        }
+        agregarTrafico();
+        System.out.println("datos del trafico");
+        System.out.println(Arrays.toString(aristasDatos.toArray()));
+    }
+
+    private void agregarTrafico() {
+        for (Arista a : aristasDatos) {
+            for (Trafico trafico : traficoDatos) {
+                if (a.getDestino().equals(trafico.getDestino()) && a.getOrigen().equals(trafico.getOrigen())) {
+                    a.getListaTrafico().add(new Trafico(trafico));
                 }
             }
         }

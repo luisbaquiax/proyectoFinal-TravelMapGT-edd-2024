@@ -34,7 +34,7 @@ public class Archivo {
     public static final String IMG_CAMINO_CORTO = "img/caminoCorto.png";
     public static final String IMG_CAMINOS = "img/caminos.png";
     public static final String RUTA_MANUAL = "../documentacion/Manual de usuario.pdf";
-    public static final String DOT_TREE = "img/tree.dot";   
+    public static final String DOT_TREE = "img/tree.dot";
     public static final String IMG_TREE = "img/tree.png";
 
     public String pathChoserOpen() {
@@ -46,6 +46,12 @@ public class Archivo {
         return "";
     }
 
+    /**
+     * Returns the content of the file
+     *
+     * @param ruta
+     * @return
+     */
     public String readFile(String ruta) {
         String content = "";
         try {

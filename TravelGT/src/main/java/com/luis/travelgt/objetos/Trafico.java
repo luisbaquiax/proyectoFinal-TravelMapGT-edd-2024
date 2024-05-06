@@ -15,7 +15,6 @@ import lombok.Setter;
  *
  * @author Luis
  */
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -27,6 +26,19 @@ public class Trafico {
     private String destino;
     private int horaInicio;
     private int horaFin;
-    private int probabilidad;
-    
+    private double probabilidad;
+
+    public Trafico(Trafico trafico) {
+        this.origen = trafico.getOrigen();
+        this.destino = trafico.getDestino();
+        this.horaInicio = trafico.getHoraInicio();
+        this.horaFin = trafico.getHoraFin();
+        this.probabilidad = trafico.getProbabilidad();
+    }
+
+    @Override
+    public String toString() {
+        return "Trafico{" + "origen=" + origen + ", destino=" + destino + ", horaInicio=" + horaInicio + ", horaFin=" + horaFin + ", probabilidad=" + probabilidad + "}\n";
+    }
+
 }

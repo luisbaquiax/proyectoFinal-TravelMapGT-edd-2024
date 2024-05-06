@@ -4,6 +4,8 @@
  */
 package com.luis.travelgt.objetos;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.*;
 
@@ -27,8 +29,12 @@ public class Arista {
     int peso;
 
     int indiceDestino;
-
+    /**
+     * Servira para manipular la funcionalidad de ir a pie
+     */
     private boolean caminable;
+
+    private List<Trafico> listaTrafico;
 
     public Arista(String origen, String destino, int tiempoVehiculo, int tiempoApie, int cantidadGasolina, int desgaste, int peso, int indiceDestino) {
         this.origen = origen;
@@ -40,6 +46,7 @@ public class Arista {
         this.peso = peso;
         this.indiceDestino = indiceDestino;
         this.caminable = false;
+        this.listaTrafico = new ArrayList<>();
     }
 
     public Arista(Arista arista) {
@@ -52,11 +59,14 @@ public class Arista {
         this.peso = arista.getPeso();
         this.indiceDestino = arista.getIndiceDestino();
         this.caminable = arista.isCaminable();
+        this.listaTrafico = arista.getListaTrafico();
     }
 
     @Override
     public String toString() {
-        return "Arista{" + "origen=" + origen + ", destino=" + destino + ", tiempoVehiculo=" + tiempoVehiculo + ", tiempoApie=" + tiempoApie + ", cantidadGasolina=" + cantidadGasolina + ", desgaste=" + desgaste + ", peso=" + peso + ", indiceDestino=" + indiceDestino + '}';
+        return "Arista{" + "origen=" + origen + ", destino=" + destino + ", tiempoVehiculo=" + tiempoVehiculo
+                + ", tiempoApie=" + tiempoApie + ", cantidadGasolina=" + cantidadGasolina + ", desgaste=" + desgaste
+                + ", peso=" + peso + ", indiceDestino=" + indiceDestino + " trafico" + listaTrafico + "}\n";
     }
 
     @Override

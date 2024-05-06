@@ -26,9 +26,6 @@ public class GrafoDirigido {
         this.rutaMasCortaIndices = new ArrayList<>();
     }
 
-    private void verAristas() {
-    }
-
     public void agregarVertice(String vertice) {
 
         nodos.add(new Nodo(vertice, 0, 0));
@@ -52,13 +49,13 @@ public class GrafoDirigido {
         StringBuilder resultado = new StringBuilder();
         resultado.append("digraph G {\n");
         for (int i = 0; i < nodos.size(); i++) {
-            String origen = nodos.get(i).nombre;
+            String origen = nodos.get(i).getNombre();
             List<Arista> destinos = aristas.get(i);
             for (Arista arista : destinos) {
-                String destino = nodos.get(arista.indiceDestino).nombre;
+                String destino = nodos.get(arista.indiceDestino).getNombre();
                 if (!arista.isCaminable()) {
                     resultado.append(origen).append(" -> ").
-                            append(destino).append(" [label=\"[").append(arista.peso).append("]\", dir=none];\n");
+                            append(destino).append(" [label=\"[").append(arista.getPeso()).append("]\"];\n");
                 }
             }
         }
@@ -146,16 +143,16 @@ public class GrafoDirigido {
         StringBuilder resultado = new StringBuilder();
         resultado.append("digraph G {\n");
         for (int i = 0; i < nodos.size(); i++) {
-            String nodo = nodos.get(i).nombre;
+            String nodo = nodos.get(i).getNombre();
             //mostrar ubicacion
             if (nodo.equals(origen) || nodo.equals(destino)) {
                 resultado.append(nodo).append(" [style=filled, fillcolor=").append("yellow").append("];\n");
             }
             List<Arista> destinos = aristas.get(i);
             for (Arista arista : destinos) {
-                String nodoDestino = nodos.get(arista.indiceDestino).nombre;
+                String nodoDestino = nodos.get(arista.getIndiceDestino()).getNombre();
                 String etiqueta = " [label=\"[" + arista.peso + "]\", color=\"" + color + "\"";
-                if (rutaMasCortaIndices.contains(i) && rutaMasCortaIndices.contains(arista.indiceDestino) && arista.indiceDestino != encontrarIndiceNodo(origen)) {
+                if (rutaMasCortaIndices.contains(i) && rutaMasCortaIndices.contains(arista.getIndiceDestino()) && arista.getIndiceDestino() != encontrarIndiceNodo(origen)) {
                     etiqueta += " penwidth=3, style=bold, color=\"red\"]";
                 } else {
                     etiqueta = " [label=\"[" + arista.peso + "]\", color=\"" + color + "\"]";
@@ -318,6 +315,59 @@ public class GrafoDirigido {
         }
 
         visitados[origen] = false;
+    }
+
+    public List<Ruta> obtenerRutaDoble(String origen, String destino) {
+        // Encontrar los índices de los nodos de origen y destino
+        int indiceOrigen = encontrarIndiceNodo(origen);
+        int indiceDestino = encontrarIndiceNodo(destino);
+
+        // Lista para almacenar las rutas con correspondencia
+        List<Ruta> rutasConCorrespondencia = new ArrayList<>();
+
+        // Lista auxiliar para almacenar la ruta actual durante el recorrido DFS
+        List<Arista> rutaActual = new ArrayList<>();
+
+        // Array para marcar los nodos visitados durante el recorrido DFS
+        boolean[] visitados = new boolean[nodos.size()];
+
+        encontarDobleRutaRecursivo(indiceOrigen, indiceDestino, rutaActual, rutasConCorrespondencia, visitados);
+
+        return rutasConCorrespondencia;
+    }
+
+    private void encontarDobleRutaRecursivo(int origen, int destino, List<Arista> rutaActual, List<Ruta> rutasConCorrespondencia, boolean[] visitados) {
+        // Marcar el nodo actual como visitado
+        visitados[origen] = true;
+
+        // Agregar el nodo actual a la ruta actual
+        //rutaActual.add(new Arista(nodos.get(origen).nombre, "", 0, 0, 0, 0, 0, 0));
+        rutaActual.add(getArista(origen));
+        
+        // Si el nodo actual es el nodo de destino, añadir la ruta actual a la lista de rutas con correspondencia
+        if (origen == destino) {
+            rutasConCorrespondencia.add(new Ruta(new ArrayList<>(rutaActual)));
+        } else {
+            // Recorrer las aristas del nodo actual
+            for (Arista arista : aristas.get(origen)) {
+                // Si la arista no ha sido visitada y es caminable (de tipo ida y vuelta)
+                if (!visitados[arista.indiceDestino] && arista.isCaminable()) {
+                    // Realizar una llamada recursiva para explorar el nodo siguiente
+                    encontarDobleRutaRecursivo(arista.indiceDestino, destino, rutaActual, rutasConCorrespondencia, visitados);
+                }
+            }
+        }
+
+        // Desmarcar el nodo actual como visitado y eliminarlo de la ruta actual
+        visitados[origen] = false;
+        rutaActual.remove(rutaActual.size() - 1);
+    }
+    
+    private Arista getArista(int origen){
+         for (int i = 0; i < aristas.get(origen).size(); i++) {
+            return new Arista(aristas.get(origen).get(i));
+        }
+        return null;
     }
 
 }
